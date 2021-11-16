@@ -7,15 +7,18 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type UserType struct {
+type Users struct {
 	Guid    string `bson:"guid"`
 	Project string `bson:"project"`
 }
 
-var UserDB = UserCollection()
+var userTable, userDb = Connection{
+	Database:   IOT,
+	Collection: USERS,
+}, userTable.Connect()
 
-func (data *UserType) Insert() interface{} {
-	res, err := UserDB.InsertOne(context.TODO(), data)
+func (db *Users) Insert() interface{} {
+	res, err := userDb.InsertOne(context.TODO(), db)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -24,19 +27,14 @@ func (data *UserType) Insert() interface{} {
 	return id
 }
 
-func Users(data *UserType) *UserType {
-	return data
-}
-
-func FindProject(guid string) pb.ProjectInfo {
-	var result UserType
+func (db *Users) Find() pb.ProjectInfo {
+	var result Users
 	var project pb.ProjectInfo
-	err := UserDB.FindOne(context.TODO(), bson.M{"guid": guid}).Decode(&result)
-	// 프로젝트 워치 번호 존재 하지 않으면 개발서버로 실행
+	err := userDb.FindOne(context.TODO(), bson.M{"guid": db.Guid}).Decode(&result)
 	if err != nil {
 		fmt.Println(err)
 		result.Project = "test"
 	}
-	projectDB.FindOne(context.TODO(), bson.M{"code": result.Project}).Decode(&project)
+	projectDb.FindOne(context.TODO(), bson.M{"code": result.Project}).Decode(&project)
 	return project
 }

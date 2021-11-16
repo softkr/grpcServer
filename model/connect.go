@@ -10,19 +10,24 @@ import (
 	"os"
 )
 
-type DBType struct {
-	Database   string
-	Collection string
-}
-
 const (
 	IOT      = "iot"
 	MFILES   = "mfiles"
 	PROJECTS = "projects"
 	USERS    = "users"
+	WATCHES  = "watches"
 )
 
-var mgoCli *mongo.Client
+type Connection struct {
+	Database   string
+	Collection string
+}
+
+var (
+	mgoCli     *mongo.Client
+	client     = GetMgoCli()
+	collection *mongo.Collection
+)
 
 func initEngine() {
 	var err error
@@ -46,52 +51,16 @@ func GetMgoCli() *mongo.Client {
 	return mgoCli
 }
 
-func Collection(t *DBType) *mongo.Collection {
-	var (
-		client     = GetMgoCli()
-		collection *mongo.Collection
-	)
-	collection = client.Database(IOT).Collection(t.Collection)
-	collection.Indexes().CreateOne(
-		context.Background(),
-		mongo.IndexModel{
-			Keys:    bson.D{{Key: "filename", Value: 1}},
-			Options: options.Index().SetUnique(true),
-		},
-	)
-	return collection
-}
-
-func FileCollection() *mongo.Collection {
-	var (
-		client     = GetMgoCli()
-		collection *mongo.Collection
-	)
-	collection = client.Database(IOT).Collection(MFILES)
-	collection.Indexes().CreateOne(
-		context.Background(),
-		mongo.IndexModel{
-			Keys:    bson.D{{Key: "filename", Value: 1}},
-			Options: options.Index().SetUnique(true),
-		},
-	)
-	return collection
-}
-
-func ProjectCollection() *mongo.Collection {
-	var (
-		client     = GetMgoCli()
-		collection *mongo.Collection
-	)
-	collection = client.Database(IOT).Collection(PROJECTS)
-	return collection
-}
-
-func UserCollection() *mongo.Collection {
-	var (
-		client     = GetMgoCli()
-		collection *mongo.Collection
-	)
-	collection = client.Database(IOT).Collection(USERS)
+func (db *Connection) Connect() *mongo.Collection {
+	collection = client.Database(db.Database).Collection(db.Collection)
+	if db.Database == "iot" {
+		collection.Indexes().CreateOne(
+			context.Background(),
+			mongo.IndexModel{
+				Keys:    bson.D{{Key: "filename", Value: 1}},
+				Options: options.Index().SetUnique(true),
+			},
+		)
+	}
 	return collection
 }

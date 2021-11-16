@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type SocketType struct {
+type Sockets struct {
 	Guid         string
 	Addr         string
 	Status       string
@@ -15,22 +15,21 @@ type SocketType struct {
 	TakeMedicine int32
 }
 
-var info = DBType{
-	Database:   "iot",
-	Collection: "watches",
-}
-var db = Collection(&info)
+var watchTable, watchDb = Connection{
+	Database:   IOT,
+	Collection: WATCHES,
+}, watchTable.Connect()
 
-func WatchSocketStatus(s *SocketType) bool {
+func (db *Sockets) OnOff() bool {
 	var (
 		filter bson.M
 		doc    bson.M
 	)
-	if s.Status == "on" {
-		filter = bson.M{"sn": s.Guid}
-		doc = bson.M{"wifi": 1, "addr": s.Addr, "wifiState": s.Status}
+	if db.Status == "on" {
+		filter = bson.M{"sn": db.Guid}
+		doc = bson.M{"wifi": 1, "addr": db.Addr, "wifiState": db.Status}
 	} else {
-		filter = bson.M{"addr": s.Addr}
+		filter = bson.M{"addr": db.Addr}
 		doc = bson.M{"wifiState": "off", "addr": nil}
 	}
 
@@ -42,18 +41,18 @@ func WatchSocketStatus(s *SocketType) bool {
 		Upsert:         &upsert,
 	}
 	var result bson.M
-	err := db.FindOneAndUpdate(context.TODO(), filter, update, &opt).Decode(&result)
+	err := watchDb.FindOneAndUpdate(context.TODO(), filter, update, &opt).Decode(&result)
 	if err != nil {
 		fmt.Println(err)
 	}
 	return true
 }
 
-func WatchUpdate(s *SocketType) bool {
-	filter := bson.M{"sn": s.Guid}
-	update := bson.D{{"$set", bson.M{"sn": s.Guid, "wear": s.Wear, "takeMedicine": s.TakeMedicine}}}
+func (db *Sockets) Update() bool {
+	filter := bson.M{"sn": db.Guid}
+	update := bson.D{{"$set", bson.M{"sn": db.Guid, "wear": db.Wear, "takeMedicine": db.TakeMedicine}}}
 	var result bson.M
-	err := db.FindOneAndUpdate(context.TODO(), filter, update).Decode(&result)
+	err := watchDb.FindOneAndUpdate(context.TODO(), filter, update).Decode(&result)
 	if err != nil {
 		fmt.Println(err)
 	}

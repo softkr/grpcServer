@@ -14,11 +14,14 @@ type ProjectType struct {
 	AccessKey string `bson:"AZURE_STORAGE_ACCESS_KEY"`
 }
 
-var projectDB = ProjectCollection()
+var prjTable, projectDb = Connection{
+	Database:   IOT,
+	Collection: PROJECTS,
+}, prjTable.Connect()
 
 // 입력
 func (data *ProjectType) Insert() interface{} {
-	res, err := projectDB.InsertOne(context.TODO(), data)
+	res, err := projectDb.InsertOne(context.TODO(), data)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -33,7 +36,7 @@ func (data *ProjectType) Search(str string) ProjectType {
 		"code": str,
 	}
 	var result ProjectType
-	projectDB.FindOne(context.Background(), filter).Decode(&result)
+	projectDb.FindOne(context.Background(), filter).Decode(&result)
 	fmt.Println(result)
 	return result
 }

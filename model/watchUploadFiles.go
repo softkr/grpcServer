@@ -7,38 +7,42 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var fileDB = FileCollection()
-
-type FileInfoType struct {
+type Files struct {
 	Guid         string   `json:"guid" bson:"guid"`
 	FileName     string   `json:"filename" bson:"filename"`
 	VideoMD5     string   `json:"videomd5" bson:"videomd5"`
 	SubFile      []string `json:"subfile" bson:"subfile"`
 	SubFileCount int32    `json:"subfilecount" bson:"subfilecount"`
+	Value        string
 }
 
-func FileInsert(data *FileInfoType) {
+var fileTable, fileDb = Connection{
+	Database:   IOT,
+	Collection: MFILES,
+}, fileTable.Connect()
+
+func (db *Files) Insert() {
 	opts := options.Update().SetUpsert(true)
 	filter := bson.M{
-		"guid": data.FileName,
+		"guid": db.FileName,
 	}
 	query := bson.M{
 		"$setOnInsert": bson.M{
-			"guid":     data.Guid,
-			"filename": data.FileName,
-			"videomd5": data.VideoMD5,
-			"subfile":  data.SubFile,
+			"guid":     db.Guid,
+			"filename": db.FileName,
+			"videomd5": db.VideoMD5,
+			"subfile":  db.SubFile,
 		},
 	}
-	fileDB.UpdateOne(context.TODO(), filter, query, opts)
+	fileDb.UpdateOne(context.TODO(), filter, query, opts)
 }
 
-func FileUpdate(value string) int32 {
+func (db *Files) Update() int32 {
 	filter := bson.M{
-		"subfile": value,
+		"subfile": db.Value,
 	}
-	var result FileInfoType
-	fileDB.FindOneAndUpdate(context.TODO(), filter, bson.M{
+	var result Files
+	fileDb.FindOneAndUpdate(context.TODO(), filter, bson.M{
 		"$inc": bson.M{
 			"subfilecount": 1,
 		},
@@ -46,30 +50,30 @@ func FileUpdate(value string) int32 {
 	return result.SubFileCount
 }
 
-func FileFind(value string) (data FileInfoType) {
+func (db *Files) Find() (data Files) {
 	filter := bson.M{
-		"subfile": value,
+		"subfile": db.Value,
 	}
-	var result FileInfoType
-	fileDB.FindOne(context.TODO(), filter).Decode(&result)
+	var result Files
+	fileDb.FindOne(context.TODO(), filter).Decode(&result)
 	return result
 }
 
-func FileDeleteOne(value string) {
+func (db *Files) Count() int32 {
 	filter := bson.M{
-		"videomd5": value,
+		"videomd5": db.Value,
 	}
-	_, err := fileDB.DeleteMany(context.TODO(), filter)
+	var result Files
+	fileDb.FindOne(context.TODO(), filter).Decode(&result)
+	return result.SubFileCount - int32(len(result.SubFile))
+}
+
+func (db *Files) Remove() {
+	filter := bson.M{
+		"videomd5": db.Value,
+	}
+	_, err := fileDb.DeleteMany(context.TODO(), filter)
 	if err != nil {
 		fmt.Printf("%s\n", err.Error())
 	}
-}
-
-func FileCount(value string) int32 {
-	filter := bson.M{
-		"videomd5": value,
-	}
-	var result FileInfoType
-	fileDB.FindOne(context.TODO(), filter).Decode(&result)
-	return result.SubFileCount - int32(len(result.SubFile))
 }

@@ -24,9 +24,7 @@ service Greeter {
 
   rpc WatchStatus (WatchState) returns (WatchStateReply){};
   rpc WatchUpdate (WatchUpdates) returns (WatchStateReply){};
-
   rpc GetProject (ProjectRequest) returns (ProjectReply) {};
-
   rpc SetFileInfo (SetFileInfoRequest) returns (SetFileInfoReply) {}
   rpc FindSubFile(GetFindFileInfoRequest)returns(GetFindFileInReply){}
   rpc PutFileInfo(PutFileInfoRequest)returns(PutFileInfoReply){}
