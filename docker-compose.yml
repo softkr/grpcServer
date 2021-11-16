@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  server:
+    build: .
+    ports:
+      - '50051:50051'
+    image: 'grpc:latest'
+    external_links:
+      - db
+    container_name: grpc
+    network_mode: bridge

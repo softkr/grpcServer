@@ -1,0 +1,8 @@
+FROM alpine
+ENV HOST=localhost
+ENV PORT=:50051
+ENV MONGO_URL=mongodb://172.17.0.2:27017
+COPY gRPCServer /root
+WORKDIR /root
+ENTRYPOINT [ "./gRPCServer" ]
+EXPOSE 50051
