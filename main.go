@@ -17,6 +17,37 @@ type server struct {
 
 /**** 프로젝트 *******/
 
+func (s *server) TodoListInsert(ctx context.Context, in *pb.CheckList) (*pb.CheckListReply, error) {
+	data := db.Todo{
+		FileName: in.GetFilename(),
+		Project:  in.GetProject(),
+		Storage:  in.GetStorage(),
+		Api:      in.GetApi(),
+		Remove:   in.GetRemove(),
+	}
+	data.Insert()
+	return &pb.CheckListReply{Status: 200, Message: "정상처리 되었습니다."}, nil
+}
+
+func (s *server) TodoListUpdate(ctx context.Context, in *pb.CheckList) (*pb.CheckListReply, error) {
+	data := db.Todo{
+		FileName: in.GetFilename(),
+		Project:  in.GetProject(),
+		Storage:  in.GetStorage(),
+		Api:      in.GetApi(),
+		Remove:   in.GetRemove(),
+	}
+	data.Update()
+	return &pb.CheckListReply{Status: 200, Message: "정상처리 되었습니다."}, nil
+}
+func (s *server) TodoListRemove(ctx context.Context, in *pb.CheckList) (*pb.CheckListReply, error) {
+	data := db.Todo{
+		FileName: in.GetFilename(),
+	}
+	data.Delete()
+	return &pb.CheckListReply{Status: 200, Message: "정상처리 되었습니다."}, nil
+}
+
 //등록
 
 // 찾기

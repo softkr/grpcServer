@@ -11,11 +11,12 @@ import (
 )
 
 const (
-	IOT      = "iot"
-	MFILES   = "mfiles"
-	PROJECTS = "projects"
-	USERS    = "users"
-	WATCHES  = "watches"
+	IOT       = "iot"
+	MFILES    = "mfiles"
+	PROJECTS  = "projects"
+	USERS     = "users"
+	WATCHES   = "watches"
+	CHECKLIST = "checklist"
 )
 
 type Connection struct {

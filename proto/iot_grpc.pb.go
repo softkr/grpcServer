@@ -18,6 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GreeterClient interface {
+	// Sends a greeting
 	WatchStatus(ctx context.Context, in *WatchState, opts ...grpc.CallOption) (*WatchStateReply, error)
 	WatchUpdate(ctx context.Context, in *WatchUpdates, opts ...grpc.CallOption) (*WatchStateReply, error)
 	GetProject(ctx context.Context, in *ProjectRequest, opts ...grpc.CallOption) (*ProjectReply, error)
@@ -26,6 +27,9 @@ type GreeterClient interface {
 	PutFileInfo(ctx context.Context, in *PutFileInfoRequest, opts ...grpc.CallOption) (*PutFileInfoReply, error)
 	DeleteFileInfo(ctx context.Context, in *RemoveFileInfoRequest, opts ...grpc.CallOption) (*RemoveFileInfoReply, error)
 	SubFileCount(ctx context.Context, in *SubFileCountRequest, opts ...grpc.CallOption) (*SubFileCountReply, error)
+	TodoListInsert(ctx context.Context, in *CheckList, opts ...grpc.CallOption) (*CheckListReply, error)
+	TodoListUpdate(ctx context.Context, in *CheckList, opts ...grpc.CallOption) (*CheckListReply, error)
+	TodoListRemove(ctx context.Context, in *CheckList, opts ...grpc.CallOption) (*CheckListReply, error)
 }
 
 type greeterClient struct {
@@ -108,10 +112,38 @@ func (c *greeterClient) SubFileCount(ctx context.Context, in *SubFileCountReques
 	return out, nil
 }
 
+func (c *greeterClient) TodoListInsert(ctx context.Context, in *CheckList, opts ...grpc.CallOption) (*CheckListReply, error) {
+	out := new(CheckListReply)
+	err := c.cc.Invoke(ctx, "/proto.Greeter/TodoListInsert", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterClient) TodoListUpdate(ctx context.Context, in *CheckList, opts ...grpc.CallOption) (*CheckListReply, error) {
+	out := new(CheckListReply)
+	err := c.cc.Invoke(ctx, "/proto.Greeter/TodoListUpdate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *greeterClient) TodoListRemove(ctx context.Context, in *CheckList, opts ...grpc.CallOption) (*CheckListReply, error) {
+	out := new(CheckListReply)
+	err := c.cc.Invoke(ctx, "/proto.Greeter/TodoListRemove", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GreeterServer is the server API for Greeter service.
 // All implementations must embed UnimplementedGreeterServer
 // for forward compatibility
 type GreeterServer interface {
+	// Sends a greeting
 	WatchStatus(context.Context, *WatchState) (*WatchStateReply, error)
 	WatchUpdate(context.Context, *WatchUpdates) (*WatchStateReply, error)
 	GetProject(context.Context, *ProjectRequest) (*ProjectReply, error)
@@ -120,6 +152,9 @@ type GreeterServer interface {
 	PutFileInfo(context.Context, *PutFileInfoRequest) (*PutFileInfoReply, error)
 	DeleteFileInfo(context.Context, *RemoveFileInfoRequest) (*RemoveFileInfoReply, error)
 	SubFileCount(context.Context, *SubFileCountRequest) (*SubFileCountReply, error)
+	TodoListInsert(context.Context, *CheckList) (*CheckListReply, error)
+	TodoListUpdate(context.Context, *CheckList) (*CheckListReply, error)
+	TodoListRemove(context.Context, *CheckList) (*CheckListReply, error)
 	mustEmbedUnimplementedGreeterServer()
 }
 
@@ -150,6 +185,15 @@ func (UnimplementedGreeterServer) DeleteFileInfo(context.Context, *RemoveFileInf
 }
 func (UnimplementedGreeterServer) SubFileCount(context.Context, *SubFileCountRequest) (*SubFileCountReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubFileCount not implemented")
+}
+func (UnimplementedGreeterServer) TodoListInsert(context.Context, *CheckList) (*CheckListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TodoListInsert not implemented")
+}
+func (UnimplementedGreeterServer) TodoListUpdate(context.Context, *CheckList) (*CheckListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TodoListUpdate not implemented")
+}
+func (UnimplementedGreeterServer) TodoListRemove(context.Context, *CheckList) (*CheckListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TodoListRemove not implemented")
 }
 func (UnimplementedGreeterServer) mustEmbedUnimplementedGreeterServer() {}
 
@@ -308,6 +352,60 @@ func _Greeter_SubFileCount_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Greeter_TodoListInsert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckList)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).TodoListInsert(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Greeter/TodoListInsert",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).TodoListInsert(ctx, req.(*CheckList))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Greeter_TodoListUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckList)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).TodoListUpdate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Greeter/TodoListUpdate",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).TodoListUpdate(ctx, req.(*CheckList))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Greeter_TodoListRemove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckList)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GreeterServer).TodoListRemove(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.Greeter/TodoListRemove",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GreeterServer).TodoListRemove(ctx, req.(*CheckList))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Greeter_ServiceDesc is the grpc.ServiceDesc for Greeter service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -346,6 +444,18 @@ var Greeter_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubFileCount",
 			Handler:    _Greeter_SubFileCount_Handler,
+		},
+		{
+			MethodName: "TodoListInsert",
+			Handler:    _Greeter_TodoListInsert_Handler,
+		},
+		{
+			MethodName: "TodoListUpdate",
+			Handler:    _Greeter_TodoListUpdate_Handler,
+		},
+		{
+			MethodName: "TodoListRemove",
+			Handler:    _Greeter_TodoListRemove_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
