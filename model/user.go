@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	pb "gRPCServer/proto"
+
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -33,7 +34,6 @@ func (db *Users) Find() pb.ProjectInfo {
 	err := userDb.FindOne(context.TODO(), bson.M{"guid": db.Guid}).Decode(&result)
 	if err != nil {
 		fmt.Println(err)
-		result.Project = "test"
 	}
 	projectDb.FindOne(context.TODO(), bson.M{"code": result.Project}).Decode(&project)
 	return project
