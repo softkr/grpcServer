@@ -63,14 +63,14 @@ func TestInserts(t *testing.T) {
 }
 
 // 유저 관리
-func TestUsers(t *testing.T) {
-	data := db.UserType{
-		Guid:    "21IHPA0000A",
-		Project: "ihp007scm",
-	}
-	user := db.Users(&data)
-	user.Insert()
-}
+//func TestUsers(t *testing.T) {
+//	data := db.UserType{
+//		Guid:    "21IHPA0000A",
+//		Project: "ihp007scm",
+//	}
+//	user := db.Users(&data)
+//	user.Insert()
+//}
 
 // 프로젝트 정보 찾기
 func TestFindProject(t *testing.T) {
